@@ -1,20 +1,20 @@
 import cv2
 import numpy as np
+import os
+import urllib.request
+
+if os.path.exists('yolov3.weights') == False:
+    destination = 'yolov3.weights'
+    url = 'https://pjreddie.com/media/files/yolov3.weights'
+    urllib.request.urlretrieve(url, destination)
+
 
 net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
-classes = []
 
-with open('coco.names', 'r') as f:
-    classes = f.read().splitlines()
+path = input('Введите путь к видео: ')
+class_ = input('Введите название класса объекта: ')
 
-cap = cv2.VideoCapture('video.mp4')
-fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-fps = int(cap.get(cv2.CAP_PROP_FPS))
-n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-# Инициализировать объект записи видео
-out = cv2.VideoWriter('file.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 20, (h,w))
+cap = cv2.VideoCapture(path)
 font = cv2.FONT_HERSHEY_PLAIN
 colors = np.random.uniform(0, 255, size=(100, 3))
 
@@ -57,15 +57,12 @@ while (cap.isOpened()):
     if len(indexes) > 0:
         for i in indexes.flatten():
             x, y, w, h = boxes[i]
-            label = str(classes[class_ids[i]])
+            label = str(class_)
             confidence = str(round(confidences[i], 2))
             color = colors[i]
             cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
             crop_img = img[y:y + h, x:x + w]
-            cv2.imshow('Image', crop_img)
-            if _ == True:
-            # Write the frame to the output files
-                out.write(crop_img)
+            cv2.imshow(path, crop_img)
             
 
     if cv2.waitKey(33) & 0xFF == ord('q'): 
@@ -73,5 +70,5 @@ while (cap.isOpened()):
 
 
 cap.release()
-out.release()
+#out.release()
 cv2.destroyAllWindows()
